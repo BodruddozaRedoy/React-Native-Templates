@@ -1,9 +1,5 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { api } from "@/lib/axios";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 /**
  * INTERNAL CRUD ENGINE
@@ -11,10 +7,7 @@ import { api } from "@/lib/api";
  * Endpoint & queryKey are FIXED here.
  * UI gets instant updates via optimistic mutations.
  */
-export function useBaseCrud<T>(
-  queryKey: any[],
-  endpoint: string
-) {
+export function useBaseCrud<T>(queryKey: any[], endpoint: string) {
   const queryClient = useQueryClient();
 
   /* ---------- READ ---------- */
@@ -63,8 +56,7 @@ export function useBaseCrud<T>(
     }: {
       id: string | number;
       data: Partial<T>;
-    }) =>
-      (await api.put(`${endpoint}/${id}/`, data)).data,
+    }) => (await api.put(`${endpoint}/${id}/`, data)).data,
 
     onMutate: async ({ id, data }) => {
       await queryClient.cancelQueries({ queryKey });
@@ -72,9 +64,7 @@ export function useBaseCrud<T>(
       const previous = queryClient.getQueryData<T[]>(queryKey);
 
       queryClient.setQueryData<T[]>(queryKey, (old = []) =>
-        old.map((item: any) =>
-          item.id === id ? { ...item, ...data } : item
-        )
+        old.map((item: any) => (item.id === id ? { ...item, ...data } : item)),
       );
 
       return { previous };
@@ -102,7 +92,7 @@ export function useBaseCrud<T>(
       const previous = queryClient.getQueryData<T[]>(queryKey);
 
       queryClient.setQueryData<T[]>(queryKey, (old = []) =>
-        old.filter((item: any) => item.id !== id)
+        old.filter((item: any) => item.id !== id),
       );
 
       return { previous };
