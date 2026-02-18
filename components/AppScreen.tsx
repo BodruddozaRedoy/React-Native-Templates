@@ -46,7 +46,6 @@ export default function AppScreen({
   const insets = useSafeAreaInsets();
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View
         style={[
           {
@@ -64,7 +63,6 @@ export default function AppScreen({
 
         {children}
       </View>
-    </TouchableWithoutFeedback>
   );
 }
 
