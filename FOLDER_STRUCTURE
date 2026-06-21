@@ -1,0 +1,106 @@
+# Project Folder Structure Guidelines
+
+This document provides a high-level overview, directory layouts, and design conventions for both **Single-Role** and **Multi-Role** application setups. Please refer to this guide to maintain architectural consistency across the engineering team.
+
+---
+
+## 1. Shared Project Directory Layout
+
+Both single-role and multi-role setups share the exact same root directory layout. The only difference is the internal structure of the `app/` folder.
+
+```
+project_root/
+├── .expo/                 # Expo build metadata and temporary configurations
+├── .vscode/               # VS Code workspace settings
+├── android/               # Native Android build folder
+├── app/                   # Expo Router routing directory (pages/screens) - [Detailed below]
+├── assets/                # App static media files
+│   ├── graphic/           # Graphic designs and illustration elements
+│   ├── icons/             # Custom application icons
+│   └── images/            # Standard PNG/JPEG images
+├── components/            # Reusable UI components
+│   ├── global/            # Application-wide global elements (cards, modals)
+│   ├── layout/            # Layout structure components (header, footer, drawer)
+│   ├── module/            # Feature-specific subcomponents (auth, dashboard)
+│   └── ui/                # Core UI primitives (buttons, inputs, status indicators)
+├── constants/             # App-wide constants
+├── context/               # React Context providers (redirections, themes)
+├── docs/               # React Context providers (redirections, themes)
+├── hooks/                 # Reusable React custom hooks
+├── lib/                   # Third-party integrations & utilities (Stripe, Axios)
+├── services/              # API network requests definitions
+└── types/                 # TypeScript type declarations
+```
+
+---
+
+## 2. Structure inside the `app/` Folder
+
+Depending on the role architecture, structure the `app/` directory according to one of the options below:
+
+### Option A: Single-Role Setup (Flat Routing)
+
+For applications catering to only one primary actor (e.g., a customer). Authentication, onboarding, and tabs are mounted directly under `app/`:
+
+```
+app/
+├── (auth)/            # Authentication flow routes (sign-in, sign-up, etc.)
+├── (onboarding)/      # App onboarding flow screens
+├── (tabs)/            # Main tab layout navigation (e.g., Home, Profile)
+│   ├── tab-1/         # First tab sub-pages and main screen
+│   ├── tab-2/         # Second tab sub-pages and main screen
+│   ├── tab-3/         # Third tab sub-pages and main screen
+│   └── tab-4/         # Fourth tab sub-pages and main screen
+└── (routes)/          # Non-tab sub-pages (e.g., detail views, setting overrides)
+```
+
+### Option B: Multi-Role Setup (Role-Based Routing)
+
+For applications managing multiple distinct roles in the same codebase. Routes and screens are segregated under specific role folders:
+
+```
+app/
+├── (auth)/            # Authentication flow routes
+├── (role_1)/          # Workspace for role type 1 (e.g., Cleaner)
+│   ├── (routes)/      # Sub-pages for cleaners
+│   └── (tabs)/        # Tab navigation for cleaners
+├── (role_2)/          # Workspace for role type 2 (e.g., Maintenance)
+│   ├── (routes)/      # Sub-pages for maintenance
+│   └── (tabs)/        # Tab navigation for maintenance
+└── (role_3)/          # Workspace for role type 3 (e.g., Admin)
+    ├── (routes)/      # Sub-pages for admin tasks
+    └── (tabs)/        # Tab navigation for admin tasks
+```
+
+---
+
+## 3. Teammate Guidelines & Best Practices
+
+To maintain code cleanliness and ensure consistent code reviews, adhere to the following rules:
+
+### Component Classification Rules
+Before creating a component under `components/`, follow this hierarchy:
+1.  **Check `ui/` first**: For basic primitives (buttons, inputs, checkboxes, loaders, skeleton screens). Make sure you reuse existing visual primitives before building a new one.
+2.  **`module/` (Feature-specific)**: If the component is specific to one screen or domain (e.g., `LoginForm` under `module/auth`, `ProfileForm` under `module/profile`). Organize by screen/feature name inside this folder.
+3.  **`layout/` (Structure & Containers)**: If the component governs layout wraps (e.g., screen container wrappers, custom headers, top headers, drawer layout navigation wrappers).
+4.  **`global/` (Universal Cards & Feedback)**: If the component is a complex visual element used globally but doesn't map to a specific feature (e.g., an order item card, customized bottom sheet overlays, generic empty state banners).
+
+### Typography and Layout Scaling
+*   **Don't Use Custom Text Sizes**: Always leverage established style systems/constants for text sizing. Avoid ad-hoc font-size definitions.
+*   **Safe Area Settings**:
+    *   Use `SafeAreaView` (from `react-native-safe-area-context`) to safely buffer top spaces (e.g., notch offsets).
+    *   For automatic bottom spacing adjustment, query device/insets metrics (e.g., `insets.bottom`) rather than adding arbitrary padding heights.
+
+### State & Mock Data Guidelines
+*   **Mock Variables instead of Static Text**: When building views, do not use raw hardcoded text strings in array maps or displays. Define your mock data as arrays of objects or structured variables so they can easily be replaced by real backend API responses later.
+*   **API / Service Layering**: Network and async API queries should be isolated in `services/` (or `lib/` configuration wrappers) rather than embedded directly in UI screens.
+
+---
+
+## 4. Key Root Configuration Files (Shared)
+*   `app.json` / `app.config.js` — Expo client configuration module.
+*   `babel.config.js` — Babel transpiler compiler configurations.
+*   `eslint.config.js` — Linter and code styling compliance rules.
+*   `metro.config.js` — React Native Metro packager options.
+*   `tailwind.config.js` — NativeWind/Tailwind styling layout parameters.
+*   `tsconfig.json` — TypeScript configuration parameters.
